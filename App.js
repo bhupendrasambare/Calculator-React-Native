@@ -5,14 +5,79 @@ import {BackspaceIcon} from "react-native-heroicons/outline"
 export function App(){
 
 	const [equation,setEquation] = useState("")
+	const [answer,setAnswer] = useState("")
+    const symbols = ["x","/","-","+","%"];
 
 	const addToEquation = (prop) =>{
-        console.log(prop)
+        switch((!isNaN(parseFloat(prop)) && isFinite(prop)) || prop==".") {
+            case true:
+                setEquation(equation+prop);
+              break;
+            default:
+              switch(prop){
+                  case "C":
+                    setEquation("")
+                    setAnswer("")
+                    break;
+                  case "*":
+                  case "/":
+                  case "+":
+                  case "-":
+                  case "%":
+                    let c = equation.substr(equation.length - 1);
+                    if(c!=null && !symbols.includes(c)){
+                        setEquation(equation+prop);
+                    }
+                    break;
+                case "=":
+                    calculate(true)
+                    break;
+
+              }
+        }
 	}
 
-	useEffect(() => {
+    const deleleLast = () =>{
+        if(equation.length>0){
+            let temp = equation.substring(0,equation.length-1);
+            setEquation(temp);
+        }
+    }
 
-	}, [])
+    const calculate = (prop)=>{
+        if(equation!=""){
+            const operatorRegex = /[+\-x/]$/;
+
+            if (operatorRegex.test(equation)) {
+                const modifiedEquation = equation.slice(0, -1);
+
+                try {
+                const result = eval(modifiedEquation);
+                setAnswer(result);
+                } catch (error) {
+                    console.log(equation)
+                    console.log("Error 1")
+                return `Error: ${error.message}`;
+                }
+            } else {
+                try {
+                const result = eval(equation);
+                setAnswer(result);
+                } catch (error) {
+                    console.log(equation)
+                    console.log("Error 2")
+                return `Error: ${error.message}`;
+                }
+            }
+        }
+        if(prop){
+            setEquation("")
+        }
+    }
+
+	useEffect(() => {
+        calculate()
+	}, [equation])
 
 	
 
@@ -21,16 +86,18 @@ export function App(){
         <View className="flex-1 bg-slate-800">
         <SafeAreaView className="flex-1">
             <View className="px-5 py-5">
-                <Text className="text-white pb-2 text-5xl text-right w-full">5+5+5</Text>
-                <Text className="text-white pb-2 text-3xl text-right w-full">15</Text>
+                <Text className="text-white pb-2 text-5xl text-right w-full">{equation}</Text>
+                <Text className={"text-white pb-2 text-right w-full"+((equation=="")?" text-5xl":" text-3xl")}>
+                    {answer}
+                </Text>
             </View>
             <View className="bg-blue-1000 absolute bottom-0 right-0 left-0 pb-5">
                 <View className="px-1">
                     <View className="flex-row">
+                        {/* <Text className="bg-violet-950 text-white ml-3 text-center w-8 h-6 my-2 rounded-full ">sa</Text>
                         <Text className="bg-violet-950 text-white ml-3 text-center w-8 h-6 my-2 rounded-full ">sa</Text>
                         <Text className="bg-violet-950 text-white ml-3 text-center w-8 h-6 my-2 rounded-full ">sa</Text>
-                        <Text className="bg-violet-950 text-white ml-3 text-center w-8 h-6 my-2 rounded-full ">sa</Text>
-                        <Text className="bg-violet-950 text-white ml-3 text-center w-8 h-6 my-2 rounded-full ">sa</Text>
+                        <Text className="bg-violet-950 text-white ml-3 text-center w-8 h-6 my-2 rounded-full ">sa</Text> */}
                     </View>
                     <View className="flex-row flex-wrap">
                             {["C","%","/"].map((item, index) => (
@@ -43,13 +110,13 @@ export function App(){
                                 </TouchableOpacity>
                             ))}
                             <TouchableOpacity key={"->"} className="bg-blue-950 p-4 items-center rounded-md flex-1 m-1"
-                                onPress={() => console.log(`Button ${"->"} pressed`)}
+                                onPress={deleleLast}
                                 >
                                 <BackspaceIcon  size="30" strokeWidth={2} color="white"  />
                             </TouchableOpacity>
                     </View>
                     <View className="flex-row flex-wrap">
-                            {["7","8","9","x"].map((item, index) => (
+                            {["7","8","9","*"].map((item, index) => (
                                 <TouchableOpacity key={item} className="bg-blue-950 p-4 rounded-md flex-1 m-1"
                                     onPress={() => addToEquation(item)}
                                     >
@@ -76,7 +143,7 @@ export function App(){
                             ))}
                     </View>
                     <View className="flex-row flex-wrap">
-                            {["00","0","•","="].map((item, index) => (
+                            {["00","0",".","="].map((item, index) => (
                                 <TouchableOpacity key={item} className="bg-blue-950 p-4 rounded-md flex-1 m-1"
                                     onPress={() => addToEquation(item)}
                                     >
