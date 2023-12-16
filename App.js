@@ -1,4 +1,4 @@
-import { SafeAreaView, Text, View, TouchableOpacity } from 'react-native';
+import { SafeAreaView, Text, View, TouchableOpacity, ScrollView } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import {BackspaceIcon} from "react-native-heroicons/outline"
 
@@ -6,7 +6,7 @@ export function App(){
 
 	const [equation,setEquation] = useState("")
 	const [answer,setAnswer] = useState("")
-    const symbols = ["x","/","-","+","%"];
+    const symbols = ["*","/","-","+","%"];
 
 	const addToEquation = (prop) =>{
         switch((!isNaN(parseFloat(prop)) && isFinite(prop)) || prop==".") {
@@ -41,11 +41,20 @@ export function App(){
         if(equation.length>0){
             let temp = equation.substring(0,equation.length-1);
             setEquation(temp);
+            if(temp==""){
+                setAnswer("")
+            }
         }
     }
 
+    const doesNotContainAnySubstring = (mainString) => {
+        return symbols.every(substring => !mainString.includes(substring));
+    };
+
     const calculate = (prop)=>{
-        if(equation!=""){
+        if(equation!="" && doesNotContainAnySubstring(equation)){
+            setAnswer(equation)
+        }else if(equation!=""){
             const operatorRegex = /[+\-x/]$/;
 
             if (operatorRegex.test(equation)) {
@@ -86,10 +95,12 @@ export function App(){
         <View className="flex-1 bg-slate-800">
         <SafeAreaView className="flex-1">
             <View className="px-5 py-5">
-                <Text className="text-white pb-2 text-5xl text-right w-full">{equation}</Text>
-                <Text className={"text-white pb-2 text-right w-full"+((equation=="")?" text-5xl":" text-3xl")}>
-                    {answer}
-                </Text>
+                <Text className="text-white pb-2 text-5xl text-right w-full">{(equation.length>50)?(".."+equation.substring(equation.length-49,equation.length-1)):equation}</Text>
+                <ScrollView style={{maxHeight:160}}>
+                    <Text className={" pb-2 text-right w-full"+((equation=="")?" text-5xl text-white":" text-3xl text-purple-100")}>
+                        {answer}
+                    </Text>
+                </ScrollView>
             </View>
             <View className="bg-blue-1000 absolute bottom-0 right-0 left-0 pb-5">
                 <View className="px-1">
