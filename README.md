@@ -1,4 +1,4 @@
-# Calculator
+# Calculator [Android application](./android/app/release/app-release.apk?raw=true)
 ## React Native application
 
 Calculator is a React native application flexiable for both andorid and web deveices.
